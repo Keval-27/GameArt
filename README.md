@@ -28,7 +28,10 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 ---
 
 ## 📷 Screenshots
-(Add some screenshots here once your app is running. Example:)
+
+| Home Screen | Categories | Preview |
+|-------------|------------|---------|
+| ![Home](screenshots/home.png) | ![Categories](screenshots/categories.png) | ![Preview](screenshots/preview.png) |
 
 
 
