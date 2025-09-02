@@ -29,9 +29,37 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 
 ## 📷 Screenshots
 
-| Home Screen | Categories | Preview |
-|-------------|------------|---------|
-| ![Home](screenshots/HomePage.png) | ![Categories](screenshots/category.png) | ![Preview](screenshots/favourites.png) |
+### 🏠 App Intro & Home
+| Intro | Home |
+|-------|------|
+| ![Intro](screenshots/Intro.png) | ![Home](screenshots/HomePage.png) |
+
+---
+
+### 📂 Categories
+| Categories | Category Image |
+|------------|----------------|
+| ![Categories](screenshots/category.png) | ![Category Image](screenshots/categoryimage.png) |
+
+---
+
+### ⭐ Favourites
+![Favourites](screenshots/favourites.png)
+
+---
+
+### 🎨 Themes
+| Light Theme | Light Theme 2 | Theme |
+|-------------|---------------|-------|
+| ![Light Theme](screenshots/lightTheme.png) | ![Light Theme 2](screenshots/lighttheme (2).png) | ![Theme](screenshots/theme.png) |
+
+---
+
+### 🖼️ Wallpapers
+| Wallpaper 1 | Wallpaper 2 |
+|-------------|-------------|
+| ![Wallpaper 1](screenshots/wallpaper.png) | ![Wallpaper 2](screenshots/wallpaper2.png) |
+
 
 
 
