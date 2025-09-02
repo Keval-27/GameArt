@@ -4,13 +4,37 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+# 🎮 GameArt
 
-A few resources to get you started if this is your first Flutter project:
+GameArt is a Flutter app that provides **HD gaming wallpapers** for mobile devices.  
+Users can explore categories, search wallpapers, and set them as home/lock screen backgrounds , change theme to light , dark and amoled.with add to favourite button which whill show in favourite page
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Features
+- 🔍 Search wallpapers by game or category  
+- 🖼️ High-quality HD wallpapers  
+- 📲 Set wallpapers for **home screen**, **lock screen**, or both  
+- ⚡ Fast image loading 
+
+---
+
+## 🛠️ Tech Stack
+- **Flutter** (Dart)  
+- **Firebase** (for storing wallpapers & categories)  
+- **Cached Network Image** for image caching  
+- **Wallpaper Manager Flutter** for setting wallpapers  
+
+---
+
+## 📷 Screenshots
+(Add some screenshots here once your app is running. Example:)
+
+
+
+
+## 📥 Installation
+1. Clone the repository  
+   ```bash
+   git clone https://github.com/your-username/gameArt.git
+   cd gameArt
