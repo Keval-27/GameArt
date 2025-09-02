@@ -31,7 +31,7 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 
 | Home Screen | Categories | Preview |
 |-------------|------------|---------|
-| ![Home](screenshots/home.png) | ![Categories](screenshots/categories.png) | ![Preview](screenshots/preview.png) |
+| ![Home](screenshots/HomePage.png) | ![Categories](screenshots/category.png) | ![Preview](screenshots/favourites.png) |
 
 
 
