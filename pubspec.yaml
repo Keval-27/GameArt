@@ -1,0 +1,70 @@
+name: gameart
+description: A Flutter app for HD gaming wallpapers
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Image caching and loading
+  cached_network_image: ^3.4.1
+  http: ^1.2.2
+
+  # Staggered Grid for wallpaper layouts
+  flutter_staggered_grid_view: ^0.7.0
+
+  # Animations and loading states
+  shimmer: ^3.0.0
+  flutter_spinkit: ^5.2.0
+
+  # Permissions for downloads and gallery access
+  permission_handler: ^11.3.1
+
+  # Picking & saving images
+  image_picker: ^1.1.2
+  gallery_saver_plus: ^3.0.0
+
+  # Wallpaper plugin
+  wallpaper_manager_plus: ^0.0.3
+
+  # Firebase (latest stable compatible with minSdk 23)
+  firebase_core: ^3.4.1
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+  firebase_storage: ^12.3.3
+
+  dio: ^5.7.0
+
+  # State Management & Storage
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+
+  # File Handling
+  path_provider: ^2.1.4
+  rename: ^3.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+  flutter_launcher_icons: ^0.13.1   # ✅ added
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/Logo.png
+    - assets/icon/
+
+# ✅ Launcher icon configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/Logo.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/Logo.png"

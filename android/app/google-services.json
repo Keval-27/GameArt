@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "568928902692",
+    "project_id": "gameart-7c1a7",
+    "storage_bucket": "gameart-7c1a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568928902692:android:56c3f58361363b627a02b1",
+        "android_client_info": {
+          "package_name": "com.example.gameart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB19rmRzNujVXIxLjJbXz1yBme5LdRGV04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
