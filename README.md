@@ -51,7 +51,7 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 ### 🎨 Themes
 | Light Theme | Light Theme 2 | Theme |
 |-------------|---------------|-------|
-| ![Light Theme](screenshots/lightTheme.png) | ![Light Theme 2](screenshots/lighttheme (2).png) | ![Theme](screenshots/theme.png) |
+| ![Light Theme](screenshots/lightTheme.png) | ![Light Theme 2](screenshots/lighttheme(2).png) | ![Theme](screenshots/theme.png) |
 
 ---
 
