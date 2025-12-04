@@ -158,7 +158,6 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
             ),
           ),
 
-          // 🔥 BOTTOM CONTROLS - ALL OPTIONS VISIBLE
           Container(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
             decoration: BoxDecoration(
@@ -175,7 +174,6 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Info card with tags
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -196,7 +194,6 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // ✅ Show tags instead of resolution/downloads
                       if (widget.wallpaper.tags.isNotEmpty)
                         Wrap(
                           spacing: 8,
@@ -257,18 +254,19 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                   'Set as Wallpaper',
                   style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 16),
 
+                const SizedBox(height: 16),
                 // 🔥 SET WALLPAPER BUTTONS - ALL VISIBLE
                 Row(
                   children: [
                     Expanded(
                       child: SizedBox(
-                        height: 52,
+
+                        height: 46,
                         child: ElevatedButton.icon(
                           onPressed: _busy ? null : () => _apply(WallpaperHelper.home),
-                          icon: const Icon(Icons.home, size: 22),
-                          label: const Text('Home', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          icon: const Icon(Icons.home, size: 20),
+                          label: const Text('Home', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green[600],
                             foregroundColor: Colors.white,
@@ -282,11 +280,11 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: SizedBox(
-                        height: 52,
+                        height: 46,
                         child: ElevatedButton.icon(
                           onPressed: _busy ? null : () => _apply(WallpaperHelper.lock),
                           icon: const Icon(Icons.lock, size: 22),
-                          label: const Text('Lock', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          label: const Text('Lock', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange[600],
                             foregroundColor: Colors.white,
@@ -300,11 +298,11 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: SizedBox(
-                        height: 52,
+                        height: 46,
                         child: ElevatedButton.icon(
                           onPressed: _busy ? null : () => _apply(WallpaperHelper.both),
                           icon: const Icon(Icons.phone_android, size: 22),
-                          label: const Text('Both', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          label: const Text('Both', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple[600],
                             foregroundColor: Colors.white,

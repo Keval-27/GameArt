@@ -6,6 +6,7 @@ import 'home_screen.dart';
 import 'categories_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
+import 'premium_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,6 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     CategoriesScreen(),
     FavoritesScreen(),
     ProfileScreen(),
+    PremiumScreen()
   ];
 
   @override
@@ -37,6 +39,8 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(icon: Icon(Icons.grid_view_outlined), selectedIcon: Icon(Icons.grid_view), label: 'Categories'),
           NavigationDestination(icon: Icon(Icons.favorite_outline), selectedIcon: Icon(Icons.favorite), label: 'Favourites'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(icon: Icon(Icons.workspace_premium), selectedIcon: Icon(Icons.workspace_premium), label: 'Premium'),
+
         ],
       ),
     );

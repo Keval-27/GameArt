@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'premium_screen.dart';
 import '../theme/theme_provider.dart';
 import '../services/favorites_provider.dart';
 
@@ -17,6 +17,36 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         children: [
           const SizedBox(height: 12),
+
+          // PREMIUM TILE
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            color: Colors.amber.shade50,
+            child: ListTile(
+              leading: const Icon(Icons.star, color: Colors.orangeAccent),
+              title: const Text(
+                'Go Premium',
+                style: TextStyle(fontWeight: FontWeight.bold , color: Colors.black),
+              ),
+              subtitle: const Text('Remove ads and unlock all 4K wallpapers' , style: TextStyle(color: Colors.black),),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () async {
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                );
+
+                // Optional: react to success
+                if (result == true) {
+                  // e.g. refresh premium flag or just setState()
+                  // setState(() {});
+                }
+              }
+              ,
+            ),
+          ),
+
+          const Divider(),
           ListTile(
             title: const Text('Theme'),
             subtitle: Text(theme.mode.name.toUpperCase()),
