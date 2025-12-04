@@ -65,7 +65,7 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 ### 🖼️ Payment
 | Payment Screen | Payment Option |Payment Success|
 |-------------|-------------|
-| ![Payment Screen](screenshots/payment screen.png) | ![Payment Option](screenshots/payment Option.png) | ![Payment Success](screenshots/payment success.png) | 
+| ![Payment Screen](screenshots/paymentscreen.png) | ![Payment Option](screenshots/paymentOption.png) | ![Payment Success](screenshots/paymentsuccess.png) | 
 
 
 
