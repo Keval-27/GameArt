@@ -60,6 +60,13 @@ Users can explore categories, search wallpapers, and set them as home/lock scree
 |-------------|-------------|
 | ![Wallpaper 1](screenshots/wallpaper.png) | ![Wallpaper 2](screenshots/wallpaper2.png) |
 
+---
+
+### 🖼️ Payment
+| Payment Screen | Payment Option |Payment Success|
+|-------------|-------------|
+| ![Payment Screen](screenshots/payment screen.png) | ![Payment Option](screenshots/payment Option.png) | ![Payment Success](screenshots/payment success.png) | 
+
 
 
 
