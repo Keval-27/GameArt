@@ -14,7 +14,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isLoading = false;
 
   // ⚠️ REPLACE WITH YOUR TEST KEY ID FROM RAZORPAY
-  static const String RAZORPAY_KEY = 'rzp_test_Rn4BPo7bbMtHB4';
+  static const String RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE';
 
   @override
   void initState() {
@@ -26,16 +26,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Future<void> _buyPremium() async {
-    if (RAZORPAY_KEY == 'rzp_test_YOUR_KEY_HERE') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Add your Razorpay Test Key ID first!'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
     setState(() => _isLoading = true);
 
     _paymentService.initiatePayment(
