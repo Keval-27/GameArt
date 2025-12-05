@@ -1,76 +1,65 @@
 import 'package:flutter/material.dart';
-import '../models/category_model.dart';
-import '../services/wallpaper_service.dart';
+import 'package:get/get.dart';
+import '../controllers/category_controller.dart';
 import '../widgets/category_card.dart';
-import 'category_wallpapers_screen.dart';
+import '../routes/app_routes.dart';
 
-class CategoriesScreen extends StatefulWidget {
+class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
-}
-
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  final _service = WallpaperService();
-  List<CategoryModel> _categories = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadCategoriesWithCounts();
-  }
-
-  Future<void> loadCategoriesWithCounts() async {
-    final categories = await _service.getCategories();
-    final List<CategoryModel> updated = [];
-    for (var cat in categories) {
-      final wallpapers = await _service.getWallpaperByCategory(cat.name, limit: 1000);
-      updated.add(CategoryModel(
-          id: cat.id,
-          name: cat.name,
-          count: wallpapers.length,
-          thumbnail: cat.thumbnail,
-          description: cat.description));
-    }
-    if (!mounted) return;
-    setState(() {
-      _categories = updated;
-      _loading = false;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.find<CategoryController>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Categories')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.0,
-        ),
-        itemCount: _categories.length,
-        itemBuilder: (_, i) {
-          final category = _categories[i];
-          return CategoryCard(
-            category: category,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CategoryWallpapersScreen(category: category),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.errorMessage.isNotEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(controller.errorMessage.value),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => controller.refresh(),
+                  child: const Text('Retry'),
                 ),
+              ],
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () => controller.refresh(),
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: controller.categories.length,
+            itemBuilder: (_, i) {
+              final category = controller.categories[i];
+              return CategoryCard(
+                category: category,
+                onTap: () {
+                  Get.toNamed(
+                    AppRoutes.categoryWallpapers,
+                    arguments: category,
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 }

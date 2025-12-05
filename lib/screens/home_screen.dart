@@ -1,149 +1,115 @@
 import 'package:flutter/material.dart';
-import '../models/wallpaper_model.dart';
-import '../models/category_model.dart';
-import '../services/wallpaper_service.dart';
+import 'package:get/get.dart';
+import '../controllers/wallpaper_controller.dart';
+import '../controllers/category_controller.dart';
 import '../widgets/wallpaper_card.dart';
 import '../widgets/category_card.dart';
-import 'category_wallpapers_screen.dart';
-import 'search_screen.dart';
+import '../routes/app_routes.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _service = WallpaperService();
-  List<CategoryModel> _categories = [];
-  List<WallpaperModel> _allWallpapers = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() => _loading = true);
-
-    final featuredFuture = _service.getWallpapers(limit: 24);
-    final allFuture = _service.getWallpapers(limit: 60);
-
-    // Fetch categories from Firestore
-    final rawCategories = await _service.getCategories();
-
-    // Fetch wallpapers count for each category by category name
-    final List<CategoryModel> updatedCategories = [];
-    for (final cat in rawCategories) {
-      final wallpapersInCat = await _service.getWallpaperByCategory(cat.name, limit: 1000);
-
-      updatedCategories.add(CategoryModel(
-        id: cat.id,
-        name: cat.name,
-        count: wallpapersInCat.length,
-        thumbnail: cat.thumbnail,
-        description: cat.description,
-      ));
-    }
-
-    final featured = await featuredFuture;
-    final all = await allFuture;
-
-    if (!mounted) return;
-    setState(() {
-      _categories = updatedCategories;
-      _allWallpapers = all;
-      _loading = false;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final wallpaperCtrl = Get.find<WallpaperController>();
+    final categoryCtrl = Get.find<CategoryController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('GameArt'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () => showSearch(
-                context: context, delegate: WallpaperSearchDelegate(_service)),
+            onPressed: () => Get.toNamed(AppRoutes.search),
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: Obx(() {
+        if (wallpaperCtrl.isLoading.value && wallpaperCtrl.allWallpapers.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            const SizedBox(height: 24),
+        if (wallpaperCtrl.errorMessage.isNotEmpty) {
+          return Center(child: Text(wallpaperCtrl.errorMessage.value));
+        }
 
-            // Categories horizontal list
-            const Text(
-              'Categories',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 140,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                padding: const EdgeInsets.only(left: 0, right: 16),
-                itemBuilder: (_, i) {
-                  final cat = _categories[i];
-                  // Debug print to verify counts
-                  print('Category: ${cat.name} - Count: ${cat.count}');
+        return RefreshIndicator(
+          onRefresh: () async {
+            await wallpaperCtrl.refresh();
+            await categoryCtrl.refresh();
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const SizedBox(height: 24),
 
-                  return SizedBox(
-                    width: 120,
-                    child: CategoryCard(
-                      category: cat,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CategoryWallpapersScreen(
-                            category: cat,
-                          ),
-                        ),
-                      ),
-                    ),
+              // Categories Section
+              const Text(
+                'Categories',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Obx(() {
+                if (categoryCtrl.isLoading.value) {
+                  return const SizedBox(
+                    height: 140,
+                    child: Center(child: CircularProgressIndicator()),
                   );
-                },
-              ),
-            ),
+                }
 
-            const SizedBox(height: 24),
+                return SizedBox(
+                  height: 140,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categoryCtrl.categories.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, i) {
+                      final category = categoryCtrl.categories[i];
+                      return SizedBox(
+                        width: 120,
+                        child: CategoryCard(
+                          category: category,
+                          onTap: () {
+                            Get.toNamed(
+                              AppRoutes.categoryWallpapers,
+                              arguments: category,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
 
-            // All wallpapers grid
-            const Text(
-              'All Wallpapers',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _allWallpapers.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.7,
+              const SizedBox(height: 24),
+
+              // All Wallpapers Section
+              const Text(
+                'All Wallpapers',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              itemBuilder: (_, i) => WallpaperCard(
-                wallpaper: _allWallpapers[i],
-              ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 12),
+              Obx(() {
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: wallpaperCtrl.allWallpapers.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.7,
+                  ),
+                  itemBuilder: (_, i) => WallpaperCard(
+                    wallpaper: wallpaperCtrl.allWallpapers[i],
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

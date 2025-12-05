@@ -3,7 +3,7 @@ class WallpaperModel {
   final String title;
   final String imageUrl;
   final List<String> tags;
-  final String categoryName;  // updated to categoryName
+  final String categoryName;
 
   WallpaperModel({
     required this.id,

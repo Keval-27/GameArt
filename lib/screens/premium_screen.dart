@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../services/payment_service.dart';
 
 class PremiumScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isLoading = false;
 
   // ⚠️ REPLACE WITH YOUR TEST KEY ID FROM RAZORPAY
-  static const String RAZORPAY_KEY = 'RazerPay_Test_API_Key';
+  static const String RAZORPAY_KEY = 'rzp_test_Rn4BPo7bbMtHB4';
 
   @override
   void initState() {
@@ -25,17 +26,21 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Future<void> _buyPremium() async {
-    // if (RAZORPAY_KEY == 'RazerPay_Test_API_Key') {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text('❌ Add your Razorpay Key ID first!')),
-    //   );
-    //   return;
-    // }
+    if (RAZORPAY_KEY == 'rzp_test_YOUR_KEY_HERE') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Add your Razorpay Test Key ID first!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     _paymentService.initiatePayment(
       keyId: RAZORPAY_KEY,
-      amountInPaise: 4900,  // ₹49
+      amountInPaise: 4900, // ₹49
       productName: 'Remove Ads Forever',
       userEmail: 'demo@example.com',
       userPhone: '+919999999999',
@@ -47,25 +52,33 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
     setState(() => _isLoading = false);
 
+    // ✅ Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('✅ Premium activated!'),
+        content: Text('✅ Premium activated successfully!'),
         backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
       ),
     );
 
-    // Close PremiumScreen and go back to previous screen (home/profile)
-    Navigator.of(context).pop(true);
+    // ✅ Wait 1 second then close the screen
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        Get.back(result: true); // ← Use GetX to pop, not Navigator
+      }
+    });
   }
 
-
   void _handlePaymentError(String error) {
+    if (!mounted) return;
+
     setState(() => _isLoading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('❌ Payment failed: $error'),
         backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -140,7 +153,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       color: Colors.green,
                     ),
                   ),
-                  Text('One-time payment (Test Mode - No real charges)'),
+                  Text('One-time payment (Test Mode)'),
                 ],
               ),
             ),

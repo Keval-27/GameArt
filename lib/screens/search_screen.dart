@@ -1,73 +1,64 @@
 import 'package:flutter/material.dart';
-import '../models/wallpaper_model.dart';
-import '../services/wallpaper_service.dart';
+import 'package:get/get.dart';
+import '../controllers/wallpaper_search_controller.dart';
 import '../widgets/wallpaper_card.dart';
 
-class WallpaperSearchDelegate extends SearchDelegate {
-  final WallpaperService service;
-  WallpaperSearchDelegate(this.service);
-
-  List<WallpaperModel> _results = [];
-  bool _loading = false;
+class SearchScreen extends StatelessWidget {
+  const SearchScreen({super.key});
 
   @override
-  String? get searchFieldLabel => 'Search wallpapers…';
+  Widget build(BuildContext context) {
+    final controller = Get.find<WallpaperSearchController>();
+    final searchQuery = TextEditingController();
 
-  @override
-  List<Widget>? buildActions(BuildContext context) => [
-    if (query.isNotEmpty)
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-          _results = [];
-          showSuggestions(context);
-        },
+    return Scaffold(
+      appBar: AppBar(
+        title: TextField(
+          controller: searchQuery,
+          decoration: const InputDecoration(
+            hintText: 'Search wallpapers...',
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: Colors.white54),
+          ),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          onChanged: controller.search,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              searchQuery.clear();
+              controller.clearSearch();
+            },
+          ),
+        ],
       ),
-  ];
-
-  @override
-  Widget? buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () => close(context, null),
-  );
-
-  @override
-  Widget buildSuggestions(BuildContext ctx) {
-    _fetch();
-    return _results.isEmpty && !_loading
-        ? const Center(child: Text('Type a title, tag, or category'))
-        : _buildGrid();
+      body: Obx(() {
+        if (controller.currentQuery.isEmpty) {
+          return const Center(
+            child: Text('Type a title, tag, or category to search'),
+          );
+        }
+        if (controller.isSearching.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (controller.searchResults.isEmpty) {
+          return const Center(child: Text('No results found'));
+        }
+        return GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.7,
+          ),
+          itemCount: controller.searchResults.length,
+          itemBuilder: (_, i) => WallpaperCard(
+            wallpaper: controller.searchResults[i],
+          ),
+        );
+      }),
+    );
   }
-
-  @override
-  Widget buildResults(BuildContext ctx) => _buildGrid();
-
-  void _fetch() {
-    if (query.trim().isEmpty || _loading) return;
-    _loading = true;
-
-    Future.microtask(() async {
-      final list = await service.searchWallpapers(query);
-      _results = list;
-      _loading = false;
-
-      // ✅ This forces SearchDelegate to rebuild
-      query = query;
-    });
-  }
-
-  Widget _buildGrid() => _loading
-      ? const Center(child: CircularProgressIndicator())
-      : GridView.builder(
-    padding: const EdgeInsets.all(16),
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 0.7,
-    ),
-    itemCount: _results.length,
-    itemBuilder: (_, i) => WallpaperCard(wallpaper: _results[i]),
-  );
 }

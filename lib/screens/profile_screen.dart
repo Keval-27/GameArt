@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'premium_screen.dart';
-import '../theme/theme_provider.dart';
-import '../services/favorites_provider.dart';
+import 'package:get/get.dart';
+import '../controllers/theme_controller.dart';
+import '../controllers/favorites_controller.dart';
+import '../routes/app_routes.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<ThemeProvider>();
-    final favs = context.watch<FavoritesProvider>();
+    final themeCtrl = Get.find<ThemeController>();
+    final favCtrl = Get.find<FavoritesController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 12),
 
-          // PREMIUM TILE
+          // Premium Tile
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             color: Colors.amber.shade50,
@@ -26,76 +26,103 @@ class ProfileScreen extends StatelessWidget {
               leading: const Icon(Icons.star, color: Colors.orangeAccent),
               title: const Text(
                 'Go Premium',
-                style: TextStyle(fontWeight: FontWeight.bold , color: Colors.black),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
               ),
-              subtitle: const Text('Remove ads and unlock all 4K wallpapers' , style: TextStyle(color: Colors.black),),
+              subtitle: const Text(
+                'Remove ads and unlock all 4K wallpapers',
+                style: TextStyle(color: Colors.black),
+              ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () async {
-                final result = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PremiumScreen()),
-                );
-
-                // Optional: react to success
-                if (result == true) {
-                  // e.g. refresh premium flag or just setState()
-                  // setState(() {});
-                }
-              }
-              ,
+              onTap: () => Get.toNamed(AppRoutes.premium),
             ),
           ),
 
           const Divider(),
+
+          // Theme Selector
           ListTile(
             title: const Text('Theme'),
-            subtitle: Text(theme.mode.name.toUpperCase()),
-            trailing: const Icon(Icons.color_lens_outlined),
-            onTap: () => _showThemeSheet(context),
+            trailing: Obx(() => Text(
+              themeCtrl.currentTheme.value.name.toUpperCase(),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            )),
+            onTap: () => _showThemeSheet(themeCtrl),
           ),
+
           const Divider(),
-          ListTile(
-            title: const Text('Favourites count'),
-            subtitle: Text('${favs.ids.length} items'),
-            leading: const Icon(Icons.favorite),
-            onTap: () {},
-          ),
+
+          // Favorites Count
+          Obx(() {
+            return ListTile(
+              title: const Text('Favourites count'),
+              subtitle: Text('${favCtrl.favoriteIds.length} items'),
+              leading: const Icon(Icons.favorite),
+            );
+          }),
         ],
       ),
     );
   }
 
-  void _showThemeSheet(BuildContext context) {
-    final theme = context.read<ThemeProvider>();
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) {
-        return Column(
+  void _showThemeSheet(ThemeController controller) {
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: Get.theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile(
-              title: const Text('Light'),
-              value: AppThemeMode.light,
-              groupValue: theme.mode,
-              onChanged: (v) => theme.setMode(v!),
+            const SizedBox(height: 16),
+            const Text(
+              'Select Theme',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            RadioListTile(
-              title: const Text('Dark'),
-              value: AppThemeMode.dark,
-              groupValue: theme.mode,
-              onChanged: (v) => theme.setMode(v!),
-            ),
-            RadioListTile(
-              title: const Text('AMOLED'),
-              value: AppThemeMode.amoled,
-              groupValue: theme.mode,
-              onChanged: (v) => theme.setMode(v!),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            Obx(() {
+              return Column(
+                children: [
+                  RadioListTile<AppThemeMode>(
+                    title: const Text('Light'),
+                    value: AppThemeMode.light,
+                    groupValue: controller.currentTheme.value,
+                    onChanged: (v) {
+                      if (v != null) {
+                        controller.setTheme(v);
+                        Get.back();
+                      }
+                    },
+                  ),
+                  RadioListTile<AppThemeMode>(
+                    title: const Text('Dark'),
+                    value: AppThemeMode.dark,
+                    groupValue: controller.currentTheme.value,
+                    onChanged: (v) {
+                      if (v != null) {
+                        controller.setTheme(v);
+                        Get.back();
+                      }
+                    },
+                  ),
+                  RadioListTile<AppThemeMode>(
+                    title: const Text('AMOLED'),
+                    value: AppThemeMode.amoled,
+                    groupValue: controller.currentTheme.value,
+                    onChanged: (v) {
+                      if (v != null) {
+                        controller.setTheme(v);
+                        Get.back();
+                      }
+                    },
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 16),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }

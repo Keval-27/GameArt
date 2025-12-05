@@ -1,91 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/wallpaper_model.dart';
-import '../services/favorites_provider.dart';
-import '../services/wallpaper_service.dart';
+import 'package:get/get.dart';
+import '../controllers/wallpaper_detail_controller.dart';
+import '../controllers/favorites_controller.dart';
 import '../services/wallpaper_helper.dart';
 
-class WallpaperDetailScreen extends StatefulWidget {
-  final WallpaperModel wallpaper;
-  const WallpaperDetailScreen({super.key, required this.wallpaper, required String heroTagPrefix});
-
-  @override
-  State<WallpaperDetailScreen> createState() => _WallpaperDetailScreenState();
-}
-
-class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
-  bool _busy = false;
-  final _service = WallpaperService();
-
-  Future<void> _download() async {
-    setState(() => _busy = true);
-    try {
-      final savedPath = await _service.downloadToGallery(
-        widget.wallpaper.imageUrl,
-        filename: '${widget.wallpaper.title}.jpg',
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Downloaded successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Download failed: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _apply(int location) async {
-    setState(() => _busy = true);
-    try {
-      await WallpaperHelper.setWallpaper(widget.wallpaper.imageUrl, location);
-      if (mounted) {
-        String locationText = location == WallpaperHelper.home
-            ? 'Home Screen'
-            : location == WallpaperHelper.lock
-            ? 'Lock Screen'
-            : 'Both Screens';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('✅ Set as $locationText wallpaper!'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Failed: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
+class WallpaperDetailScreen extends StatelessWidget {
+  const WallpaperDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final favs = context.watch<FavoritesProvider>();
-    final isFav = favs.isFav(widget.wallpaper.id);
+    final controller = Get.find<WallpaperDetailController>();
+    final favCtrl = Get.find<FavoritesController>();
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -101,7 +27,7 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            widget.wallpaper.title,
+            controller.wallpaper.title,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
         ),
@@ -112,52 +38,40 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
               color: Colors.black.withOpacity(0.5),
               borderRadius: BorderRadius.circular(25),
             ),
-            child: IconButton(
-              icon: Icon(
-                isFav ? Icons.favorite : Icons.favorite_border,
-                color: isFav ? Colors.red : Colors.white,
-                size: 28,
-              ),
-              onPressed: () => favs.toggle(widget.wallpaper.id),
-            ),
+            child: Obx(() {
+              final isFav = favCtrl.isFavorite(controller.wallpaper.id);
+              return IconButton(
+                icon: Icon(
+                  isFav ? Icons.favorite : Icons.favorite_border,
+                  color: isFav ? Colors.red : Colors.white,
+                  size: 28,
+                ),
+                onPressed: () => favCtrl.toggleFavorite(controller.wallpaper.id),
+              );
+            }),
           ),
         ],
       ),
       body: Column(
         children: [
-          // 🔥 FULL SCREEN BIG IMAGE
+          // Full screen image
           Expanded(
             child: Hero(
-              tag: 'wp_${widget.wallpaper.id}',
-              child: SizedBox(
-                width: double.infinity,
-                child: CachedNetworkImage(
-                  imageUrl: widget.wallpaper.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[900],
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey,
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error, color: Colors.white, size: 50),
-                          SizedBox(height: 8),
-                          Text('Failed to load image', style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
-                    ),
+              tag: 'wp_${controller.wallpaper.id}',
+              child: CachedNetworkImage(
+                imageUrl: controller.wallpaper.imageUrl,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey,
+                  child: const Center(
+                    child: Icon(Icons.error, color: Colors.white, size: 50),
                   ),
                 ),
               ),
             ),
           ),
 
+          // Action buttons
           Container(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
             decoration: BoxDecoration(
@@ -186,7 +100,7 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.wallpaper.title,
+                        controller.wallpaper.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -194,12 +108,12 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      if (widget.wallpaper.tags.isNotEmpty)
+                      if (controller.wallpaper.tags.isNotEmpty)
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: widget.wallpaper.tags
-                              .take(5) // Show max 5 tags
+                          children: controller.wallpaper.tags
+                              .take(5)
                               .map((tag) => Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
@@ -220,34 +134,36 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
 
-                // 🔥 BIG DOWNLOAD BUTTON
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: _busy ? null : _download,
-                    icon: _busy
-                        ? const SizedBox(
-                      width: 24, height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                        : const Icon(Icons.download, size: 26),
-                    label: Text(
-                      _busy ? 'Downloading...' : 'Download to Gallery',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                // Download button
+                Obx(() {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.downloadToGallery,
+                      icon: controller.isLoading.value
+                          ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                          : const Icon(Icons.download, size: 26),
+                      label: Text(
+                        controller.isLoading.value ? 'Downloading...' : 'Download to Gallery',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        elevation: 8,
+                      ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[600],
-                      foregroundColor: Colors.white,
-                      elevation: 8,
-                      shadowColor: Colors.blue.withOpacity(0.4),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-                ),
+                  );
+                }),
 
                 const SizedBox(height: 20),
                 const Text(
@@ -256,65 +172,61 @@ class _WallpaperDetailScreenState extends State<WallpaperDetailScreen> {
                 ),
 
                 const SizedBox(height: 16),
-                // 🔥 SET WALLPAPER BUTTONS - ALL VISIBLE
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
 
-                        height: 46,
-                        child: ElevatedButton.icon(
-                          onPressed: _busy ? null : () => _apply(WallpaperHelper.home),
-                          icon: const Icon(Icons.home, size: 20),
-                          label: const Text('Home', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[600],
-                            foregroundColor: Colors.white,
-                            elevation: 6,
-                            shadowColor: Colors.green.withOpacity(0.4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                // Set wallpaper buttons
+                Obx(() {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 46,
+                          child: ElevatedButton.icon(
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : () => controller.setWallpaper(WallpaperHelper.home),
+                            icon: const Icon(Icons.home, size: 20),
+                            label: const Text('Home', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 46,
-                        child: ElevatedButton.icon(
-                          onPressed: _busy ? null : () => _apply(WallpaperHelper.lock),
-                          icon: const Icon(Icons.lock, size: 22),
-                          label: const Text('Lock', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[600],
-                            foregroundColor: Colors.white,
-                            elevation: 6,
-                            shadowColor: Colors.orange.withOpacity(0.4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 46,
+                          child: ElevatedButton.icon(
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : () => controller.setWallpaper(WallpaperHelper.lock),
+                            icon: const Icon(Icons.lock, size: 22),
+                            label: const Text('Lock', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 46,
-                        child: ElevatedButton.icon(
-                          onPressed: _busy ? null : () => _apply(WallpaperHelper.both),
-                          icon: const Icon(Icons.phone_android, size: 22),
-                          label: const Text('Both', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple[600],
-                            foregroundColor: Colors.white,
-                            elevation: 6,
-                            shadowColor: Colors.purple.withOpacity(0.4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 46,
+                          child: ElevatedButton.icon(
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : () => controller.setWallpaper(WallpaperHelper.both),
+                            icon: const Icon(Icons.phone_android, size: 22),
+                            label: const Text('Both', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
               ],
             ),
           ),

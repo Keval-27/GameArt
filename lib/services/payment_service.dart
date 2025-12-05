@@ -1,73 +1,67 @@
+import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+typedef PaymentSuccessCallback = void Function(bool success);
+typedef PaymentErrorCallback = void Function(String error);
 
 class PaymentService {
   late Razorpay _razorpay;
-  final Function(bool) onPaymentSuccess;
-  final Function(String) onPaymentError;
+  final PaymentSuccessCallback onPaymentSuccess;
+  final PaymentErrorCallback onPaymentError;
 
   PaymentService({
     required this.onPaymentSuccess,
     required this.onPaymentError,
   }) {
-    _initializeRazorpay();
-  }
-
-  void _initializeRazorpay() {
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
 
-  void initiatePayment({
+  Future<void> initiatePayment({
     required String keyId,
     required int amountInPaise,
     required String productName,
     required String userEmail,
     required String userPhone,
-  }) {
-    var options = {
-      'key': keyId,
-      'amount': amountInPaise,
-      'currency': 'INR',
-      'name': 'GameArt Wallpapers',
-      'description': productName,
-      'prefill': {
-        'contact': userPhone,
-        'email': userEmail,
-      },
-    };
-
+  }) async {
     try {
+      var options = {
+        'key': keyId,
+        'amount': amountInPaise, // Amount in paise (₹49 = 4900 paise)
+        'name': 'GameArt Premium',
+        'description': productName,
+        'retry': {'enabled': true, 'max_count': 1},
+        'prefill': {
+          'contact': userPhone,
+          'email': userEmail,
+        },
+        'external': {
+          'wallets': ['paytm'],
+        },
+      };
+
       _razorpay.open(options);
     } catch (e) {
-      onPaymentError('Error: $e');
+      print('Payment Error: $e');
+      onPaymentError(e.toString());
     }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     print('✅ Payment Success: ${response.paymentId}');
-    // Handle null paymentId with fallback
-    final paymentId = response.paymentId ?? 'premium_${DateTime.now().millisecondsSinceEpoch}';
-    _savePremiumStatus(paymentId);
     onPaymentSuccess(true);
   }
-
 
   void _handlePaymentError(PaymentFailureResponse response) {
     print('❌ Payment Error: ${response.message}');
     onPaymentError(response.message ?? 'Payment failed');
   }
 
-  Future<void> _savePremiumStatus(String paymentId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isPremium', true);
-    await prefs.setString('premiumPaymentId', paymentId);
-  }
-
-  static Future<bool> isPremium() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isPremium') ?? false;
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    print('📱 External Wallet: ${response.walletName}');
+    onPaymentError('Payment cancelled');
   }
 
   void dispose() {
